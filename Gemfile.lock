@@ -29,5 +29,6 @@ PLATFORMS
 
 DEPENDENCIES
   cape
+  capistrano
   capistrano_colors!
   roundsman
