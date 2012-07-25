@@ -1,3 +1,5 @@
+source 'http://rubygems.org'
+
 gem 'capistrano'
 gem 'cape'
 gem 'roundsman', :require => false

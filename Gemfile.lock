@@ -5,6 +5,7 @@ GIT
     capistrano_colors (0.5.5)
 
 GEM
+  remote: http://rubygems.org/
   specs:
     cape (1.4.0)
     capistrano (2.12.0)
