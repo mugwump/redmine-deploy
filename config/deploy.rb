@@ -64,7 +64,14 @@ end
 
 
 
-
+namespace :complete do
+  task :setup do
+    deploy.setup
+    deploy.default
+    deploy.migrate
+    redmine_configurator.load_default_configuration
+  end
+end
 
 # if you want to clean up old releases on each deploy uncomment this:
 # after "deploy:restart", "deploy:cleanup"
