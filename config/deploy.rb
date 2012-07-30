@@ -55,7 +55,15 @@ set :logrotate,             :logs => ["#{deploy_to}/current/log/production.log"]
 
 
 before "deploy:update_code" do
-  roundsman.run_list "recipe[application::default]", "recipe[application::mysql]", "recipe[imagemagick]", "recipe[imagemagick::devel]", "recipe[imagemagick::rmagick]", "recipe[sqlite]"
+  run_list = %w{   recipe[application::default]
+                   recipe[application::mysql] 
+                   recipe[imagemagick] 
+                   recipe[imagemagick::devel] 
+                   recipe[imagemagick::rmagick] 
+                   recipe[sqlite]
+                   recipe[graphviz] }
+  
+  roundsman.run_list run_list
 end
 
 after "deploy:create_symlink" do
