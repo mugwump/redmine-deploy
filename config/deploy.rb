@@ -13,6 +13,7 @@ default_environment['RAILS_ENV'] = "production"
 
 set :stages,              %w(vagrant production amazon)
 set :cookbooks_directory, ["config/cookbooks"]
+set :templates_directory, ["templates"]
 
 set :use_sudo,            false
 set :keep_releases,       10
@@ -50,7 +51,9 @@ set :passenger,             :version => "3.0.12"
 set :mysql,                 :root_pw => "methodpark",
                             :database => "redmine",
                             :username => "redmine",
-                            :usr_pw => "methodpark"
+                            :usr_pw => "methodpark",
+                            :host => "localhost"
+                            
 set :logrotate,             :logs => ["#{deploy_to}/current/log/production.log"]
 
 
@@ -101,19 +104,10 @@ namespace :app do
      and sets the proper upload permissions.
    EOD
    task :setup, :except => { :no_release => true } do
-     dirs = uploads_dirs.map { |d| File.join(shared_path, d) }
-     run "#{try_sudo} mkdir -p #{dirs.join(' ')} && #{try_sudo} chmod g+w #{dirs.join(' ')}"   
+     upload_dir = File.join(shared_path, "files")
+     run "#{try_sudo} mkdir -p #{upload_dir} && #{try_sudo} chmod g+w #{upload_dir}"   
    end
    
-   desc <<-EOD
-    [internal] Computes uploads directory paths
-    and registers them in Capistrano environment.
-  EOD
-  task :register_dirs do
-    set :uploads_dirs,    %w(files)
-    set :shared_children, fetch(:shared_children) + fetch(:uploads_dirs)
-  end
-
   desc "symbolic link to the shared assets"
     task :symlink, :roles => [:app] do
       run "rm -rf #{release_path}/files"
@@ -134,6 +128,70 @@ namespace :app do
   after "deploy:finalize_update", "app:symlink"
   
 end
+
+
+
+namespace :db do
+
+    desc <<-DESC
+      Creates the database.yml configuration file in shared path.
+
+      By default, this task uses a template unless a template
+      called database.yml.erb is found either is :templates_directory
+      or /config/deploy folders. The default template matches
+      the template for config/database.yml file shipped with Rails.
+
+      When this recipe is loaded, db:setup is automatically configured
+      to be invoked after deploy:setup. You can skip this task setting
+      the variable :skip_db_setup to true. This is especially useful
+      if you are using this recipe in combination with
+      capistrano-ext/multistaging to avoid multiple db:setup calls
+      when running deploy:setup for all stages one by one.
+    DESC
+    task :setup, :except => { :no_release => true } do
+      
+      default_template = <<-EOF
+      base: &base
+        adapter: sqlite3
+        timeout: 5000
+      development:
+        database: #{shared_path}/db/development.sqlite3
+        <<: *base
+      test:
+        database: #{shared_path}/db/test.sqlite3
+        <<: *base
+      production:
+        database: #{shared_path}/db/production.sqlite3
+        <<: *base
+      EOF
+      
+      location = fetch(:templates_directory).join("") + '/database.yml.erb'
+      puts "location --> #{location}"
+      template = File.file?(location) ? File.read(location) : default_template
+
+      
+      
+      config = ERB.new(template)
+      
+      run "mkdir -p #{shared_path}/db"
+      run "mkdir -p #{shared_path}/config"
+        
+
+      put config.result(binding), "#{shared_path}/config/database.yml"
+    end
+    
+    desc <<-DESC
+      [internal] Updates the symlink for database.yml file to the just deployed release.
+    DESC
+    task :symlink, :except => { :no_release => true } do
+      run "ln -nfs #{shared_path}/config/database.yml #{release_path}/config/database.yml"
+    end
+
+    after "deploy:setup",           "db:setup"   unless fetch(:skip_db_setup, false)
+    after "deploy:finalize_update", "db:symlink"
+
+  end
+  
 
 def file_exists?(path)
   "true" ==  capture("if [ -e #{path} ]; then echo 'true'; fi").strip
