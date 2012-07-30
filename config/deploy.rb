@@ -96,15 +96,29 @@ end
 
 
 namespace :app do
-  desc "symbolic link to the shared assets"
-
-
-  task :symlink, :roles => [:app] do
-      # TODO get the dataabase.yml out of version-control and fetch it from somewhere else
-      # run "ln -sf #{shared_path}/database.yml #{release_path}/config/database.yml"
-      # TODO link the paths to the uploaded files, to make sure they are preserved during deployments
-      #run "ln -sf #{shared_path}/files #{release_path}/public/files"
+  desc <<-EOD
+     Creates the upload folders unless they exist
+     and sets the proper upload permissions.
+   EOD
+   task :setup, :except => { :no_release => true } do
+     dirs = uploads_dirs.map { |d| File.join(shared_path, d) }
+     run "#{try_sudo} mkdir -p #{dirs.join(' ')} && #{try_sudo} chmod g+w #{dirs.join(' ')}"   
+   end
+   
+   desc <<-EOD
+    [internal] Computes uploads directory paths
+    and registers them in Capistrano environment.
+  EOD
+  task :register_dirs do
+    set :uploads_dirs,    %w(files)
+    set :shared_children, fetch(:shared_children) + fetch(:uploads_dirs)
   end
+
+  desc "symbolic link to the shared assets"
+    task :symlink, :roles => [:app] do
+      run "rm -rf #{release_path}/files"
+      run "ln -nsf #{shared_path}/files  #{release_path}/files"
+    end
 
   desc "update the release path, since it's using the previous one"
   task :update_current_release do
@@ -115,6 +129,10 @@ namespace :app do
   task :remove_rvmrc, :roles => [:app] do
     run "rm #{release_path}/.rvmrc" if file_exists? "#{release_path}/.rvmrc"
   end
+  
+  after "deploy:setup", "app:setup"
+  after "deploy:finalize_update", "app:symlink"
+  
 end
 
 def file_exists?(path)
