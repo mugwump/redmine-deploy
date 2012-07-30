@@ -1,3 +1,3 @@
-## v0.7.1:
+## v0.0.1:
 
-* Current public release
+* Current working release
