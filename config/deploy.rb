@@ -11,7 +11,7 @@ end
 # is it the missing RAILS_ENV, that trips up the mysql-commands?!
 default_environment['RAILS_ENV'] = "production"
 
-set :stages,              %w(vagrant production amazon)
+set :stages,              %w(vagrant production amazon test_mw)
 set :cookbooks_directory, ["config/cookbooks"]
 set :templates_directory, ["templates"]
 
