@@ -1,0 +1,31 @@
+default: &default
+  adapter: mysql2
+  host: <%= mysql[:host] %>
+  username: <%= mysql[:username] %>
+  password: <%= mysql[:usr_pw] %>
+  encoding: utf8
+
+  
+production:
+  <<: *default	
+  database: <%= mysql[:database] %>
+
+development_sqlite:  
+  adapter: sqlite3
+  database: db/<%= mysql[:database] %>_development
+  timeout: 5000
+
+development:  
+  <<: *default	
+  database: <%= mysql[:database] %>_development
+  socket: "/tmp/mysql.sock"
+
+test:  
+  adapter: sqlite3
+  database: db/<%= mysql[:database] %>_test
+  timeout: 5000
+
+test_mysql:
+  <<: *default	
+  database: <%= mysql %>_test
+  socket: "/tmp/mysql.sock"
