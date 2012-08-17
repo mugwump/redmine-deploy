@@ -9,23 +9,3 @@ default: &default
 production:
   <<: *default	
   database: <%= mysql[:database] %>
-
-development_sqlite:  
-  adapter: sqlite3
-  database: db/<%= mysql[:database] %>_development
-  timeout: 5000
-
-development:  
-  <<: *default	
-  database: <%= mysql[:database] %>_development
-  socket: "/tmp/mysql.sock"
-
-test:  
-  adapter: sqlite3
-  database: db/<%= mysql[:database] %>_test
-  timeout: 5000
-
-test_mysql:
-  <<: *default	
-  database: <%= mysql %>_test
-  socket: "/tmp/mysql.sock"

@@ -1,5 +1,6 @@
 source 'http://rubygems.org'
 
+gem 'fog'
 gem 'capistrano'
 gem 'cape'
 gem 'roundsman', :require => false

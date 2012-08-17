@@ -1,4 +1,4 @@
-set :main_server,           "ec2-176-34-95-121.eu-west-1.compute.amazonaws.com"
+set :main_server,           "ec2-46-137-45-76.eu-west-1.compute.amazonaws.com"
 
 set :user,                  "ubuntu"
 set :password,              ""
