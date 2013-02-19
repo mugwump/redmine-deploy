@@ -31,7 +31,7 @@ after "deploy",                 "deploy:cleanup"
 
 # currently a self-signed certificate, do not verify
 default_environment['GIT_SSL_NO_VERIFY'] = true
-set :repository,            "https://hives.alere.com/apiary/git/redmine.git"
+set :repository,            "https://github.com/mugwump/redmine-2"
 set :application,           "redmine"
 
 set :scm,                   :git
@@ -48,10 +48,10 @@ set :rails_env,             "production"
 set :ruby_version,          "1.9.3-p194"
 
 set :passenger,             :version => "3.0.12"
-set :mysql,                 :root_pw => "methodpark",
-                            :database => "redmine",
-                            :username => "redmine",
-                            :usr_pw => "methodpark",
+set :mysql,                 :root_pw => ENV['MYSQL_ROOT_PW'],
+                            :database => ENV['MYSQL_DB_NAME'],
+                            :username => ENV['MYSQL_DB_USER'],
+                            :usr_pw => ENV['MYSQL_DB_USER'],
                             :host => "localhost"
                             
 set :logrotate,             :logs => ["#{deploy_to}/current/log/production.log"]
