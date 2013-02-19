@@ -1,2 +1,4 @@
 tmp/
 .vagrant
+.idea
+public_keys
