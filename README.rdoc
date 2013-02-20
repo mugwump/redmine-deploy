@@ -1,3 +1,0 @@
-= Redmine-Deployment
-
-The project contains all chef-scripts used for deploying redmine.
